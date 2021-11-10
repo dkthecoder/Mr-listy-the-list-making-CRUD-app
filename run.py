@@ -1,7 +1,6 @@
 from flask import Flask
-from flask import render_template, url_for, redirect, flash
+from flask import render_template, url_for, redirect, flash, session
 from forms import RegistrationForm, LoginForm
-from flask_login import LoginManager
 
 from mysql import connector
 import bcrypt
@@ -9,11 +8,12 @@ import bcrypt
 #flask instance
 app = Flask(__name__)
 
-db = connector.connect(host="localhost", user="root", password="root", database="flaskapplist")
-cursor = db.cursor()
-
 #for cookies, not secure, change to enviroment variable
 app.config['SECRET_KEY'] = '44ea3dab727dfa24322ca91c30854073'
+
+#load database conector object
+db = connector.connect(host="localhost", user="root", password="root", database="flaskapplist")
+cursor = db.cursor(buffered=True)
 
 #index html root
 @app.route('/')
@@ -42,25 +42,30 @@ def my_account():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        #checks if email ddress exists
-        check_email_exists_query = "SELECT COUNT(email) FROM users WHERE email = '{0}';".format(form.email.data)
-        check_return = cursor.execute(check_email_exists_query)
+        #checks if email address exists
+        cursor.execute("SELECT COUNT(email) FROM users WHERE email = '{0}';".format(form.email.data))
+        check_return = cursor.fetchone()
         #if true, checks if password matches
-        if check_return == 1:
-            stored_hashword = cursor.execute("SELECT COUNT(email) FROM users WHERE email = '{0}';".format(form.email.data))
-            if bcrypt.check(form.password.data.encode(), )
+        if check_return[0] == 1:
+            stored_hashword = cursor.execute("SELECT password FROM users WHERE email = '{0}';".format(form.email.data))
+            stored_hashword = cursor.fetchone()
+            #bcrypt required encode to unicode characters
+            if bcrypt.checkpw(form.password.data.encode("utf-8"), (stored_hashword[0]).encode("utf-8")):
+                cursor.execute("SELECT * FROM users WHERE email = '{0}';".format(form.email.data))
+                user_return = cursor.fetchone()
+                session['user'] = username
 
 
 
-        #check if user exsists
-        #sql return password hashg to compare to user input, by searching for iunputted username
-        #if username isnt returned, print, user doesnt exsist/wrong username
-        #else if bcrypt.checkpw(password, hashed):
-
-        flash(f'Login successful! Welcome back!', 'success')
-        return redirect(url_for('my_lists'))
-    else:
-        flash(f'Login unsuccessful! Try again!', 'danger')
+                login_user(email_return[0], remember=form.remember.data)
+                flash(f'Login successful! Welcome back!', 'success')
+                return redirect(url_for('my_lists'))
+            else:
+                flash(f'Login unsuccessful! Check password!', 'danger')
+                return render_template("login.html", form=form)
+        else:
+            flash(f'Login unsuccessful! Check email or signup', 'danger')
+            return render_template("login.html", form=form)
     return render_template("login.html", form=form)
 
 #register
@@ -68,15 +73,24 @@ def login():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        #creates password hash as string. remove "decode" for bites
-        pw = form.password.data.encode()
-        hash_word = bcrypt.hashpw(pw, bcrypt.gensalt()).decode('utf-8)')
-        #database insert for record, change for mysql
-        user_insert_query = "INSERT INTO users (idusers, username, email, password) VALUES(NULL, '{0}', '{1}', '{2}');".format(form.username.data, form.email.data, hash_word)
-        cursor.execute(user_insert_query)
-        db.commit()
-        flash(f'Account created for {form.username.data}! Time to Login', 'success')
-        return redirect(url_for('login'))
+        #checks if email address exists
+        check_email_exists_query = "SELECT COUNT(email) FROM users WHERE email = '{0}'".format(form.email.data)
+        check_return = cursor.execute(check_email_exists_query)
+        check_return = cursor.fetchone()
+        #if true, checks if password matches
+        if check_return == 1:
+            flash(f'Email Exists', 'danger')
+            return render_template("register", form=form)
+        else:
+            #creates password hash as string. remove "decode" for bites
+            pw = form.password.data.encode("utf-8")
+            hash_word = bcrypt.hashpw(pw, bcrypt.gensalt()).decode('utf-8)')
+            #database insert for record, change for mysql
+            user_insert_query = "INSERT INTO users (idusers, username, email, password) VALUES(NULL, '{0}', '{1}', '{2}')".format(form.username.data, form.email.data, hash_word)
+            cursor.execute(user_insert_query)
+            db.commit()
+            flash(f'Account created for {form.username.data}! Time to Login', 'success')
+            return redirect(url_for('login'))
     return render_template("register.html", form=form)
 
 
