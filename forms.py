@@ -1,6 +1,5 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
-from wtforms import validators
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 
 class RegistrationForm(FlaskForm):
@@ -28,3 +27,8 @@ class ListForm(FlaskForm):
     list_item = TextAreaField('Note', validators=[DataRequired()])
     mark_done = BooleanField('Mark Done?!')
     submit = SubmitField('Add')
+
+class NewListForm(FlaskForm):
+    new_list_name = StringField('List name', validators=[Length(min=2, max=50)])
+    new_list_description = TextAreaField('List Description', validators=[DataRequired()])
+    submit = SubmitField('Make New List')
