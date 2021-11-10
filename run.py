@@ -1,7 +1,7 @@
 from datetime import timedelta
 from flask import Flask
 from flask import render_template, url_for, redirect, flash, session
-from forms import RegistrationForm, LoginForm
+from forms import RegistrationForm,LoginForm, MyAccountForm, ListForm
 from datetime import timedelta
 from mysql import connector
 import bcrypt
@@ -40,13 +40,58 @@ def my_lists():
 #add custom URL
 @app.route('/list', methods=['POST', 'GET'])
 def list():
-    return render_template("list.html")
+    form = ListForm()
+    #if/else if value rom newlist button
+        #if true, then generates a new list
+    #else, returns list from database
+        #ability to delete items from list
+        #ability to add items to list
+        #ability to delete the list
+
+
+    return render_template("list.html", form=form)
+
+
 
 #my account
-#add custom URL
 @app.route('/my_account', methods=['POST', 'GET'])
 def my_account():
-    return render_template("my_account.html")
+    form = MyAccountForm()
+    form.username.data = session['username']
+    form.email.data = session['email']
+
+    #ADD CHECKS FOR NO REPEAT ENTRIES OF USER
+    #ADD ERROR FLASHS
+
+    if form.validate_on_submit():
+        #checks if field is not empty, updates email in db and session
+        if not form.email.data and form.email.data != session['email']:
+            cursor.execute("UPDATE users set email = '{0}' WHERE idusers = '{1}';".format(form.email.data, session['userid']))
+            db.commit()
+            session['email'] = form.email.data
+            flash(f'Update successful!', 'success')
+            return redirect(url_for('my_account'))
+        
+        #checks if field is not empty, updates username in db and session
+        if not form.username.data and form.username.data != session['username']:
+            cursor.execute("UPDATE users set username = '{0}' WHERE idusers = '{1}';".format(form.username.data, session['userid']))
+            db.commit()
+            session['username'] = form.username.data
+            flash(f'Update successful!', 'success')
+            return redirect(url_for('my_account'))
+
+        #checks if field is not empty, updates password in db
+        if not form.old_password.data and not form.password.data:
+            if not form.password.data and form.password.data != session['username']:
+                pw = form.password.data.encode("utf-8")
+                hash_word = bcrypt.hashpw(pw, bcrypt.gensalt()).decode('utf-8)')
+                cursor.execute("UPDATE users set password = '{0}' WHERE idusers = '{1}';".format(hash_word, session['userid']))
+                db.commit()
+                flash(f'Update successful!', 'success')
+                return redirect(url_for('my_account'))
+    return render_template("my_account.html", form=form)
+
+
 
 @app.route('/logout')
 def logout():
@@ -99,8 +144,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         #checks if email address exists
-        check_email_exists_query = "SELECT COUNT(email) FROM users WHERE email = '{0}'".format(form.email.data)
-        check_return = cursor.execute(check_email_exists_query)
+        check_return = cursor.execute("SELECT COUNT(email) FROM users WHERE email = '{0}'".format(form.email.data))
         check_return = cursor.fetchone()
         #if true, checks if password matches
         if check_return == 1:
@@ -111,8 +155,7 @@ def register():
             pw = form.password.data.encode("utf-8")
             hash_word = bcrypt.hashpw(pw, bcrypt.gensalt()).decode('utf-8)')
             #database insert for record, change for mysql
-            user_insert_query = "INSERT INTO users (idusers, username, email, password) VALUES(NULL, '{0}', '{1}', '{2}')".format(form.username.data, form.email.data, hash_word)
-            cursor.execute(user_insert_query)
+            cursor.execute("INSERT INTO users (idusers, username, email, password) VALUES(NULL, '{0}', '{1}', '{2}')".format(form.username.data, form.email.data, hash_word))
             db.commit()
             flash(f'Account created for {form.username.data}! Time to Login', 'success')
             return redirect(url_for('login'))
