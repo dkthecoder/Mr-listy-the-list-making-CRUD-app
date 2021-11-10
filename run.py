@@ -26,7 +26,11 @@ def index():
 @app.route('/my_lists', methods=['POST', 'GET'])
 def my_lists():
     if 'loggedin' in session:
-        return render_template("my_lists.html")
+
+        cursor.execute("SELECT list_name, date_created, description, idlists FROM lists WHERE userid = '{0}';".format(session['userid']))
+        list_data = cursor.fetchall()
+
+        return render_template("my_lists.html", user_lists = list_data)
     else:
         return redirect(url_for('login'))
 
@@ -46,11 +50,12 @@ def my_account():
 
 @app.route('/logout')
 def logout():
-    session.pop('loggedin', None)
-    session.pop('userid', None)
-    session.pop('username', None)
-    session.pop('email', None)
-    session.pop('remember', None)
+    #session.pop('loggedin', None)
+    #session.pop('userid', None)
+    #session.pop('username', None)
+    #session.pop('email', None)
+    #session.pop('remember', None)
+    session.clear()
     return redirect(url_for('login'))
 
 #login
