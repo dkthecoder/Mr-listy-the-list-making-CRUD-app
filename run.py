@@ -2,7 +2,7 @@ from datetime import timedelta
 from flask import Flask
 from flask import render_template, url_for, redirect, flash, session
 from werkzeug.wrappers import request
-from forms import RegistrationForm,LoginForm, MyAccountForm, ListForm, NewListForm
+from forms import RegistrationForm, LoginForm, MyAccountForm, ListForm, NewListForm
 from datetime import timedelta
 from mysql import connector
 import bcrypt
@@ -23,44 +23,71 @@ cursor = db.cursor(buffered=True)
 def index():
     return render_template("index.html")
 
-#my lists
-@app.route('/my_lists', methods=['POST', 'GET'])
-def my_lists():
-    form = NewListForm()
-    if 'loggedin' in session:
-
-        cursor.execute("SELECT list_name, date_created, description, idlists FROM lists WHERE userid = '{0}';".format(session['userid']))
-        list_data = cursor.fetchall()
-
-        return render_template("my_lists.html", form=form, user_lists = list_data)
+#delete list
+@app.route('/my_lists/<list_id>/delete', methods=['POST', 'GET'])
+def delete_list(list_id):
+    cursor.execute("SELECT userid FROM lists WHERE idlists = '{0}';".format(list_id))
+    user_id_fetch = cursor.fetchone()
+    if user_id_fetch == session['userid']:
+        cursor.execute("DELETE FROM items WHERE list_owner = '{0}';".format(list_id))
+        cursor.execute("DELETE FROM lists WHERE idlists = '{0}';".format(list_id))
+        db.commit()
+        flash(f'List Deleted!', 'success')
+        return render_template(url_for('my_lists'))
     else:
-        return redirect(url_for('login'))
+        flash(f'Error in Deletion', 'danger')
+        return render_template(url_for('my_lists'))
 
+#delete list item
+@app.route('/list_item/<iditems>/delete', methods=['POST', 'GET'])
+def delete_list_item(iditems):
+    cursor.execute("SELECT userid FROM lists WHERE idlists = '{0}';".format(iditems))
+    user_id_fetch = cursor.fetchone()
+    if user_id_fetch == session['userid']:
+        cursor.execute("DELETE FROM lists WHERE idlists = '{0}';".format(iditems))
+        db.commit()
+        flash(f'Item Deleted!', 'success')
+        return render_template(url_for('list'))
+    else:
+        flash(f'Error in Deletion', 'danger')
+        return render_template(url_for('list'))
 
 
 #list (to modify/create list)
 #add custom URL
 @app.route('/list/<list_id>', methods=['POST', 'GET'])
 def list(list_id):
-    #check if user is logged in
+    form = ListForm()
+    cursor.execute("SELECT item_name, date_created FROM items WHERE list_owner = '{0}';".format(list_id))
+    items_in_list = cursor.fetchall()
+    if form.validate_on_submit():
+        cursor.execute("INSERT INTO items (iditems, item_name, list_owner, date_created) VALUES(NULL, '{0}', '{1}', NULL);".format(form.list_item.data, list_id))
+        db.commit()
+        flash(f'New List Created!!', 'success')
+        return render_template("list.html", form=form, user_lists = items_in_list)
+
+    return render_template("list.html", form=form, list_items = items_in_list)
+
+
+#my lists
+@app.route('/my_lists', methods=['POST', 'GET'])
+def my_lists():
     form = NewListForm()
-    if list_id.isdigit():
-        cursor.execute("SELECT item_name, date_created FROM items WHERE list_owner = '{0}';".format(list_id))
-        items_in_list = cursor.fetchall()
-        print(items_in_list)
-        return render_template("list.html", form=form, list_items = items_in_list)
-        #ADD button to delete item
-        #dispaly name of list
+    if 'loggedin' in session:
+        cursor.execute("SELECT list_name, date_created, description, idlists FROM lists WHERE userid = '{0}';".format(session['userid']))
+        list_data = cursor.fetchall()
 
-    #else must be a new list
+        if form.new_list_name.data!="" and form.new_list_description.data!="":
+        #if form.validate_on_submit():
+            cursor.execute("INSERT INTO lists (idlists, list_name, userid, description, date_created) VALUES(NULL, '{0}', '{1}', '{2}', NULL);".format(form.new_list_name.data, session['userid'], form.new_list_description.data))
+            db.commit()
+            flash(f'New List Created!!', 'success')
+            return render_template("my_lists.html", form=form, user_lists = list_data)
+
+        return render_template("my_lists.html", form=form, user_lists = list_data)
     else:
-    #else, returns list from database
-        #ability to delete items from list
-        #ability to add items to list
-        #ability to delete the list
-        return render_template("list.html", form=form)
-
-
+        return redirect(url_for('login'))
+    
 
 #my account
 @app.route('/my_account', methods=['POST', 'GET'])
@@ -69,7 +96,7 @@ def my_account():
     form.username.data = session['username']
     form.email.data = session['email']
 
-    #ADD CHECKS FOR NO REPEAT ENTRIES OF USER
+    #ADD CHECKS FOR NO REPEAT ENTRIES OF user email
     #ADD ERROR FLASHS
 
     if form.validate_on_submit():

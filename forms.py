@@ -24,11 +24,11 @@ class MyAccountForm(FlaskForm):
     submit = SubmitField('Make Change')
 
 class ListForm(FlaskForm):
-    list_item = TextAreaField('Note', validators=[DataRequired()])
+    list_item = TextAreaField('Item:', validators=[DataRequired()])
     mark_done = BooleanField('Mark Done?!')
-    submit = SubmitField('Add')
+    submit = SubmitField('Add To List')
 
 class NewListForm(FlaskForm):
-    new_list_name = StringField('List name', validators=[Length(min=2, max=50)])
-    new_list_description = TextAreaField('List Description', validators=[DataRequired()])
+    new_list_name = StringField('List name:', validators=[DataRequired()])
+    new_list_description = TextAreaField('List Description:', validators=[DataRequired()])
     submit = SubmitField('Make New List')
