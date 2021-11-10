@@ -1,11 +1,23 @@
-
 {% extends "layout.html" %}
 
 {% block title %}My Lists{% endblock %}
 
 {% block content %}
-  <h1>Index</h1>
-  <p class="important">
-    Page for displaying users lists
-  </p>
+
+<h1 class="border-bottom border-gray pb-2 mb-0">My Lists</h1>
+
+{% for list_name, date_created, description, idlists in user_lists %}
+
+<div class="my-3 p-3 bg-white rounded shadow-sm">
+  <div class="media text-muted pt-3">
+    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+      <strong class="d-block text-gray-dark">{{ list_name }} - {{ date_created }}</strong>
+      {{ description }}
+      <button type="button" class="btn btn-secondary">{{ idlists }}</button>
+    </p>
+  </div>
+</div>
+
+{% endfor %}
+
 {% endblock %}
