@@ -4,15 +4,15 @@
 
 {% block content %}
 
-<h1 class="border-bottom border-gray pb-2 mb-0">NSERT list name</h1>
+<h1 class="border-bottom border-gray pb-2 mt-1 mb-1">{{ list_name }}</h1>
 
-{% for item_name, date_created in list_items %}
+{% for item_name, date_created, iditems in list_items %}
 
 <div class="my-3 p-3 bg-white rounded shadow-sm">
   <div class="media text-muted pt-3">
     <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
       <strong class="d-block text-gray-dark">{{ item_name }} - {{ date_created }}</strong>
-      <a href="/list_item/{{ iditems }}>/delete" class="btn btn-danger mt-1 mb-1">Delete Item</a>
+      <a href="/list/{{ list_id }}>/{{ list_name }}/{{ iditems }}/delete" class="btn btn-danger mt-1 mb-1">Delete Item</a>
     </p>
   </div>
 </div>

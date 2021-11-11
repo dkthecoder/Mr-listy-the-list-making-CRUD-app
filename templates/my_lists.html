@@ -14,8 +14,8 @@
       <strong class="d-block text-gray-dark">{{ list_name }} - {{ date_created }}</strong>
       {{ description }}
     </p>
-    <a href="/list/{{ idlists }}" class="btn btn-secondary mt-1 mb-1">View List</a>
-    <a href="/my_lists/{{ idlists }}/delete" class="btn btn-danger mt-1 mb-1">Delete List</a>
+    <a href="/list/{{ idlists }}/{{ list_name }}" class="btn btn-secondary mt-1 mb-1">View List</a>
+    <a href="/my_lists/delete/{{ idlists }}" class="btn btn-danger mt-1 mb-1">Delete List</a>
   </div>
 </div>
 

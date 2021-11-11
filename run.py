@@ -23,50 +23,56 @@ cursor = db.cursor(buffered=True)
 def index():
     return render_template("index.html")
 
+
+#delete list item
+@app.route('/list/<list_id>/<list_name>/<iditems>/delete', methods=['POST', 'GET'])
+def delete_list_item(list_id, list_name, iditems):
+    cursor.execute("SELECT userid FROM lists WHERE idlists = '{0}';".format(list_id))
+    user_id_fetch = cursor.fetchone()
+
+    if user_id_fetch[0] == session['userid']:
+        cursor.execute("DELETE FROM items WHERE iditems = '{0}';".format(iditems))
+        db.commit()
+        flash(f'Item Deleted!', 'success')
+        return redirect(url_for('list', list_id=list_id, list_name=list_name))
+         
+    else:
+        flash(f'Error in Deletion', 'danger')
+        return redirect(url_for('list', list_id=list_id, list_name=list_name))
+
+
+#display a list
+@app.route('/list/<list_id>/<list_name>', methods=['POST', 'GET'])
+def list(list_id, list_name):
+    form = ListForm()
+    cursor.execute("SELECT item_name, date_created, iditems FROM items WHERE list_owner = '{0}';".format(list_id))
+    items_in_list = cursor.fetchall()
+
+    if form.is_submitted():
+        cursor.execute("INSERT INTO items (iditems, item_name, list_owner, date_created) VALUES(NULL, '{0}', '{1}', now());".format(form.list_item.data, list_id))
+        db.commit()
+        flash(f'New List Created!!', 'success')
+        return redirect(url_for('list', list_id=list_id, list_name=list_name))
+
+    return render_template("list.html", form=form, list_items = items_in_list, list_name=list_name, list_id=list_id)
+
+
 #delete list
-@app.route('/my_lists/<list_id>/delete', methods=['POST', 'GET'])
+@app.route('/my_lists/delete/<list_id>', methods=['POST', 'GET'])
 def delete_list(list_id):
     cursor.execute("SELECT userid FROM lists WHERE idlists = '{0}';".format(list_id))
     user_id_fetch = cursor.fetchone()
-    if user_id_fetch == session['userid']:
+
+    if user_id_fetch[0] == session['userid']:
         cursor.execute("DELETE FROM items WHERE list_owner = '{0}';".format(list_id))
+        db.commit()
         cursor.execute("DELETE FROM lists WHERE idlists = '{0}';".format(list_id))
         db.commit()
         flash(f'List Deleted!', 'success')
-        return render_template(url_for('my_lists'))
+        return redirect(url_for('my_lists'))
     else:
         flash(f'Error in Deletion', 'danger')
-        return render_template(url_for('my_lists'))
-
-#delete list item
-@app.route('/list_item/<iditems>/delete', methods=['POST', 'GET'])
-def delete_list_item(iditems):
-    cursor.execute("SELECT userid FROM lists WHERE idlists = '{0}';".format(iditems))
-    user_id_fetch = cursor.fetchone()
-    if user_id_fetch == session['userid']:
-        cursor.execute("DELETE FROM lists WHERE idlists = '{0}';".format(iditems))
-        db.commit()
-        flash(f'Item Deleted!', 'success')
-        return render_template(url_for('list'))
-    else:
-        flash(f'Error in Deletion', 'danger')
-        return render_template(url_for('list'))
-
-
-#list (to modify/create list)
-#add custom URL
-@app.route('/list/<list_id>', methods=['POST', 'GET'])
-def list(list_id):
-    form = ListForm()
-    cursor.execute("SELECT item_name, date_created FROM items WHERE list_owner = '{0}';".format(list_id))
-    items_in_list = cursor.fetchall()
-    if form.validate_on_submit():
-        cursor.execute("INSERT INTO items (iditems, item_name, list_owner, date_created) VALUES(NULL, '{0}', '{1}', NULL);".format(form.list_item.data, list_id))
-        db.commit()
-        flash(f'New List Created!!', 'success')
-        return render_template("list.html", form=form, user_lists = items_in_list)
-
-    return render_template("list.html", form=form, list_items = items_in_list)
+        return redirect(url_for('my_lists'))
 
 
 #my lists
@@ -76,14 +82,11 @@ def my_lists():
     if 'loggedin' in session:
         cursor.execute("SELECT list_name, date_created, description, idlists FROM lists WHERE userid = '{0}';".format(session['userid']))
         list_data = cursor.fetchall()
-
-        if form.new_list_name.data!="" and form.new_list_description.data!="":
-        #if form.validate_on_submit():
-            cursor.execute("INSERT INTO lists (idlists, list_name, userid, description, date_created) VALUES(NULL, '{0}', '{1}', '{2}', NULL);".format(form.new_list_name.data, session['userid'], form.new_list_description.data))
+        if form.is_submitted():
+            cursor.execute("INSERT INTO lists (idlists, list_name, userid, description, date_created) VALUES(NULL, '{0}', '{1}', '{2}', now());".format(form.new_list_name.data, session['userid'], form.new_list_description.data))
             db.commit()
             flash(f'New List Created!!', 'success')
-            return render_template("my_lists.html", form=form, user_lists = list_data)
-
+            return redirect(url_for('my_lists'))
         return render_template("my_lists.html", form=form, user_lists = list_data)
     else:
         return redirect(url_for('login'))
