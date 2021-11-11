@@ -13,11 +13,60 @@
     <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
       <strong class="d-block text-gray-dark">{{ list_name }} - {{ date_created }}</strong>
       {{ description }}
-      <button type="button" class="btn btn-secondary">{{ idlists }}</button>
     </p>
+    <a href="/list/{{ idlists }}/{{ list_name }}" class="btn btn-secondary mt-1 mb-1">View List</a>
+    <a href="/my_lists/delete/{{ idlists }}" class="btn btn-danger mt-1 mb-1">Delete List</a>
   </div>
 </div>
 
 {% endfor %}
+
+<form method="POST" action="">
+  <Fieldset>
+    <div class="media text-muted pt-3">
+      <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <strong class="text-gray-dark">Make new list:</strong>
+
+          <div class="form-group">
+            {{ form.new_list_name.label(class="form-control-label") }}
+
+            {% if form.new_list_name.errors %}
+            {{ form.new_list_name(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.new_list_name.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% else %}
+            {{ form.new_list_name(class="form-control form-control-lg") }}
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            {{ form.new_list_description.label(class="form-control-label") }}
+
+            {% if form.new_list_description.errors %}
+            {{ form.new_list_description(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.new_list_description.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% else %}
+            {{ form.new_list_description(class="form-control form-control-lg") }}
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            {{ form.submit(class="btn btn-success") }}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </Fieldset>
+</form>
+
 
 {% endblock %}

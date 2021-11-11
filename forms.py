@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 
 class RegistrationForm(FlaskForm):
@@ -16,9 +16,19 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class MyAccountForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=50)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    old_password = PasswordField('Old Password', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Sign Up')
+    username = StringField('Username', validators=[Length(min=2, max=50)])
+    email = StringField('Email', validators=[Email()])
+    old_password = PasswordField('Old Password')
+    password = PasswordField('New Password')
+    confirm_password = PasswordField('Confirm New Password', validators=[EqualTo('password')])
+    submit = SubmitField('Make Change')
+
+class ListForm(FlaskForm):
+    list_item = TextAreaField('Item:', validators=[DataRequired()])
+    mark_done = BooleanField('Mark Done?!')
+    submit = SubmitField('Add To List')
+
+class NewListForm(FlaskForm):
+    new_list_name = StringField('List name:', validators=[DataRequired()])
+    new_list_description = TextAreaField('List Description:', validators=[DataRequired()])
+    submit = SubmitField('Make New List')

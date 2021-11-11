@@ -24,7 +24,6 @@
         {% else %}
           {{ form.username(class="form-control form-control-lg") }}
         {% endif %}
-        
       </div>
 
       <div class="form-group">
@@ -40,7 +39,6 @@
         {% else %}
           {{ form.email(class="form-control form-control-lg") }}
         {% endif %}
-        
       </div>
 
       <div class="form-group">
@@ -56,7 +54,6 @@
         {% else %}
           {{ form.password(class="form-control form-control-lg") }}
         {% endif %}
-        
       </div>
 
       <div class="form-group">
@@ -72,12 +69,11 @@
         {% else %}
           {{ form.confirm_password(class="form-control form-control-lg") }}
         {% endif %}
-        
       </div>
     </Fieldset>
 
     <div class="form-group">
-      {{ form.submit(class="btn btn-outline-info") }}
+      {{ form.submit(class="btn btn-success") }}
     </div>
   </form>
 </div>

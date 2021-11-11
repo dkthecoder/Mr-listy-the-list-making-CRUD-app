@@ -1,11 +1,61 @@
-
 {% extends "layout.html" %}
 
 {% block title %}list{% endblock %}
 
 {% block content %}
-  <h1>list</h1>
-  <p class="important">
-    Page for creating.editing a list CRUD
-  </p>
+
+<h1 class="border-bottom border-gray pb-2 mt-1 mb-1">{{ list_name }}</h1>
+
+{% for item_name, date_created, iditems in list_items %}
+
+<div class="my-3 p-3 bg-white rounded shadow-sm">
+  <div class="media text-muted pt-3">
+    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+      <strong class="d-block text-gray-dark">{{ item_name }} - {{ date_created }}</strong>
+      <a href="/list/{{ list_id }}>/{{ list_name }}/{{ iditems }}/delete" class="btn btn-danger mt-1 mb-1">Delete Item</a>
+    </p>
+  </div>
+</div>
+
+{% endfor %}
+
+<form  method="POST" action="">
+  <Fieldset>
+    <div class="media text-muted pt-3">
+      <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <strong class="text-gray-dark">Add to list:</strong>
+
+          <div class="form-group">
+            {{ form.list_item.label(class="form-control-label") }}
+
+            {% if form.list_item.errors %}
+            {{ form.list_item(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.list_item.errors %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% else %}
+            {{ form.list_item(class="form-control form-control-lg") }}
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox mb-3">
+              {{ form.mark_done(class="form-check-input") }}
+              {{ form.mark_done.label(class="form-check-label") }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            {{ form.submit(class="btn btn-success") }}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </Fieldset>
+</form>
+
 {% endblock %}

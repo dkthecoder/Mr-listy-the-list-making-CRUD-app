@@ -1,7 +1,8 @@
 from datetime import timedelta
 from flask import Flask
 from flask import render_template, url_for, redirect, flash, session
-from forms import RegistrationForm, LoginForm
+from werkzeug.wrappers import request
+from forms import RegistrationForm, LoginForm, MyAccountForm, ListForm, NewListForm
 from datetime import timedelta
 from mysql import connector
 import bcrypt
@@ -22,32 +23,139 @@ cursor = db.cursor(buffered=True)
 def index():
     return render_template("index.html")
 
+
+#delete user account
+#FUNCTION
+@app.route('/my_account/delete_account', methods=['POST', 'GET'])
+def delete_account():
+    cursor.execute("SELECT idlists FROM lists WHERE userid = '{0}';".format(session['userid']))
+    list_data = cursor.fetchall()
+
+    print(list_data)
+
+    for list in list_data:
+        cursor.execute("DELETE FROM items WHERE iditems = '{0}';".format(list[0]))
+        db.commit()
+
+    cursor.execute("DELETE FROM lists WHERE userid = '{0}';".format(session['userid']))
+    db.commit()
+    cursor.execute("DELETE FROM users WHERE idusers = '{0}';".format(session['userid']))
+    db.commit()
+    session.clear()
+    flash(f'User Account Deleted Successfully', 'success')
+    return redirect(url_for('index'))
+
+
+#delete list item
+#FUNCTION
+@app.route('/list/<list_id>/<list_name>/<iditems>/delete', methods=['POST', 'GET'])
+def delete_list_item(list_id, list_name, iditems):
+    cursor.execute("SELECT userid FROM lists WHERE idlists = '{0}';".format(list_id))
+    user_id_fetch = cursor.fetchone()
+
+    if user_id_fetch[0] == session['userid']:
+        cursor.execute("DELETE FROM items WHERE iditems = '{0}';".format(iditems))
+        db.commit()
+        flash(f'Item Deleted!', 'success')
+        return redirect(url_for('list', list_id=list_id, list_name=list_name))
+         
+    else:
+        flash(f'Error in Deletion', 'danger')
+        return redirect(url_for('list', list_id=list_id, list_name=list_name))
+
+
+#display a list
+@app.route('/list/<list_id>/<list_name>', methods=['POST', 'GET'])
+def list(list_id, list_name):
+    form = ListForm()
+    cursor.execute("SELECT item_name, date_created, iditems FROM items WHERE list_owner = '{0}';".format(list_id))
+    items_in_list = cursor.fetchall()
+
+    if form.is_submitted():
+        cursor.execute("INSERT INTO items (iditems, item_name, list_owner, date_created) VALUES(NULL, '{0}', '{1}', now());".format(form.list_item.data, list_id))
+        db.commit()
+        flash(f'New List Created!!', 'success')
+        return redirect(url_for('list', list_id=list_id, list_name=list_name))
+
+    return render_template("list.html", form=form, list_items = items_in_list, list_name=list_name, list_id=list_id)
+
+
+#delete list
+#FUNCTION
+@app.route('/my_lists/delete/<list_id>', methods=['POST', 'GET'])
+def delete_list(list_id):
+    cursor.execute("SELECT userid FROM lists WHERE idlists = '{0}';".format(list_id))
+    user_id_fetch = cursor.fetchone()
+
+    if user_id_fetch[0] == session['userid']:
+        cursor.execute("DELETE FROM items WHERE list_owner = '{0}';".format(list_id))
+        db.commit()
+        cursor.execute("DELETE FROM lists WHERE idlists = '{0}';".format(list_id))
+        db.commit()
+        flash(f'List Deleted!', 'success')
+        return redirect(url_for('my_lists'))
+    else:
+        flash(f'Error in Deletion', 'danger')
+        return redirect(url_for('my_lists'))
+
+
 #my lists
 @app.route('/my_lists', methods=['POST', 'GET'])
 def my_lists():
+    form = NewListForm()
     if 'loggedin' in session:
-
         cursor.execute("SELECT list_name, date_created, description, idlists FROM lists WHERE userid = '{0}';".format(session['userid']))
         list_data = cursor.fetchall()
-
-        return render_template("my_lists.html", user_lists = list_data)
+        if form.is_submitted():
+            cursor.execute("INSERT INTO lists (idlists, list_name, userid, description, date_created) VALUES(NULL, '{0}', '{1}', '{2}', now());".format(form.new_list_name.data, session['userid'], form.new_list_description.data))
+            db.commit()
+            flash(f'New List Created!!', 'success')
+            return redirect(url_for('my_lists'))
+        return render_template("my_lists.html", form=form, user_lists = list_data)
     else:
         return redirect(url_for('login'))
-
     
 
-#list (to modify/create list)
-#add custom URL
-@app.route('/list', methods=['POST', 'GET'])
-def list():
-    return render_template("list.html")
-
 #my account
-#add custom URL
 @app.route('/my_account', methods=['POST', 'GET'])
 def my_account():
-    return render_template("my_account.html")
+    form = MyAccountForm()
+    form.username.data = session['username']
+    form.email.data = session['email']
 
+    #ADD CHECKS FOR NO REPEAT ENTRIES OF user email
+    #ADD ERROR FLASHS
+
+    if form.validate_on_submit():
+        #checks if field is not empty, updates email in db and session
+        if not form.email.data and form.email.data != session['email']:
+            cursor.execute("UPDATE users set email = '{0}' WHERE idusers = '{1}';".format(form.email.data, session['userid']))
+            db.commit()
+            session['email'] = form.email.data
+            flash(f'Update successful!', 'success')
+            return redirect(url_for('my_account'))
+        
+        #checks if field is not empty, updates username in db and session
+        if not form.username.data and form.username.data != session['username']:
+            cursor.execute("UPDATE users set username = '{0}' WHERE idusers = '{1}';".format(form.username.data, session['userid']))
+            db.commit()
+            session['username'] = form.username.data
+            flash(f'Update successful!', 'success')
+            return redirect(url_for('my_account'))
+
+        #checks if field is not empty, updates password in db
+        if not form.old_password.data and not form.password.data:
+            if not form.password.data and form.password.data != session['username']:
+                pw = form.password.data.encode("utf-8")
+                hash_word = bcrypt.hashpw(pw, bcrypt.gensalt()).decode('utf-8)')
+                cursor.execute("UPDATE users set password = '{0}' WHERE idusers = '{1}';".format(hash_word, session['userid']))
+                db.commit()
+                flash(f'Update successful!', 'success')
+                return redirect(url_for('my_account'))
+    return render_template("my_account.html", form=form)
+
+
+#FUNCTION to log user out
 @app.route('/logout')
 def logout():
     #session.pop('loggedin', None)
@@ -99,8 +207,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         #checks if email address exists
-        check_email_exists_query = "SELECT COUNT(email) FROM users WHERE email = '{0}'".format(form.email.data)
-        check_return = cursor.execute(check_email_exists_query)
+        check_return = cursor.execute("SELECT COUNT(email) FROM users WHERE email = '{0}'".format(form.email.data))
         check_return = cursor.fetchone()
         #if true, checks if password matches
         if check_return == 1:
@@ -111,8 +218,7 @@ def register():
             pw = form.password.data.encode("utf-8")
             hash_word = bcrypt.hashpw(pw, bcrypt.gensalt()).decode('utf-8)')
             #database insert for record, change for mysql
-            user_insert_query = "INSERT INTO users (idusers, username, email, password) VALUES(NULL, '{0}', '{1}', '{2}')".format(form.username.data, form.email.data, hash_word)
-            cursor.execute(user_insert_query)
+            cursor.execute("INSERT INTO users (idusers, username, email, password) VALUES(NULL, '{0}', '{1}', '{2}')".format(form.username.data, form.email.data, hash_word))
             db.commit()
             flash(f'Account created for {form.username.data}! Time to Login', 'success')
             return redirect(url_for('login'))
