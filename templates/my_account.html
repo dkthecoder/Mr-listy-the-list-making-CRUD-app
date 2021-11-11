@@ -117,8 +117,28 @@
     </div>
   </form>
 
-  <small class="d-block text-right mt-3">
-    <a href="#">Delete Account</a>
+  <small class="d-block text-right mt-3 mb-3">
+    <a href="#" data-bs-toggle="modal" data-bs-target="#accountDelete">Delete Account</a>
+
+    <!-- Modal -->
+    <div class="modal fade" id="accountDelete" tabindex="-1" aria-labelledby="accountDeleteLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="accountDeleteLabel">Are you sure?!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Once you delete all account items, lists and account information will be deleted...</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <a type="button" class="btn btn-danger" href="{{ url_for('delete_account') }}">I Am Sure</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </small>
   </div>
 </main>

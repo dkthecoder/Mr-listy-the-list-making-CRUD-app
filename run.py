@@ -24,7 +24,30 @@ def index():
     return render_template("index.html")
 
 
+#delete user account
+#FUNCTION
+@app.route('/my_account/delete_account', methods=['POST', 'GET'])
+def delete_account():
+    cursor.execute("SELECT idlists FROM lists WHERE userid = '{0}';".format(session['userid']))
+    list_data = cursor.fetchall()
+
+    print(list_data)
+
+    for list in list_data:
+        cursor.execute("DELETE FROM items WHERE iditems = '{0}';".format(list[0]))
+        db.commit()
+
+    cursor.execute("DELETE FROM lists WHERE userid = '{0}';".format(session['userid']))
+    db.commit()
+    cursor.execute("DELETE FROM users WHERE idusers = '{0}';".format(session['userid']))
+    db.commit()
+    session.clear()
+    flash(f'User Account Deleted Successfully', 'success')
+    return redirect(url_for('index'))
+
+
 #delete list item
+#FUNCTION
 @app.route('/list/<list_id>/<list_name>/<iditems>/delete', methods=['POST', 'GET'])
 def delete_list_item(list_id, list_name, iditems):
     cursor.execute("SELECT userid FROM lists WHERE idlists = '{0}';".format(list_id))
@@ -58,6 +81,7 @@ def list(list_id, list_name):
 
 
 #delete list
+#FUNCTION
 @app.route('/my_lists/delete/<list_id>', methods=['POST', 'GET'])
 def delete_list(list_id):
     cursor.execute("SELECT userid FROM lists WHERE idlists = '{0}';".format(list_id))
@@ -131,7 +155,7 @@ def my_account():
     return render_template("my_account.html", form=form)
 
 
-
+#FUNCTION to log user out
 @app.route('/logout')
 def logout():
     #session.pop('loggedin', None)
