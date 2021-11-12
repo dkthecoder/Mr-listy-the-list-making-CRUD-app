@@ -1,0 +1,8 @@
+#ignore pycache folder
+__pycache__/
+
+#ignore .docx
+*.docx
+
+#ignore .pdf
+*.pdf

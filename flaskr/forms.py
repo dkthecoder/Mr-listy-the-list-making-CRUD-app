@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextA
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=50)])
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=45)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('New Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
@@ -16,7 +16,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class MyAccountForm(FlaskForm):
-    username = StringField('Username', validators=[Length(min=2, max=50)])
+    username = StringField('Username', validators=[Length(min=2, max=45)])
     email = StringField('Email', validators=[Email()])
     old_password = PasswordField('Old Password')
     password = PasswordField('New Password')
@@ -24,11 +24,11 @@ class MyAccountForm(FlaskForm):
     submit = SubmitField('Make Change')
 
 class ListForm(FlaskForm):
-    list_item = TextAreaField('Item:', validators=[DataRequired()])
+    list_item = TextAreaField('Item:', validators=[DataRequired(), Length(min=2, max=45)])
     mark_done = BooleanField('Mark Done?!')
     submit = SubmitField('Add To List')
 
 class NewListForm(FlaskForm):
-    new_list_name = StringField('List name:', validators=[DataRequired()])
-    new_list_description = TextAreaField('List Description:', validators=[DataRequired()])
+    new_list_name = StringField('List name:', validators=[DataRequired(), Length(min=2, max=40)])
+    new_list_description = TextAreaField('List Description:', validators=[DataRequired(), Length(max=500)])
     submit = SubmitField('Make New List')

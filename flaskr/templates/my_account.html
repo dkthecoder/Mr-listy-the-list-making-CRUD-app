@@ -115,6 +115,7 @@
     <div class="form-group">
       {{ form.submit(class="btn btn-success") }}
     </div>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   </form>
 
   <small class="d-block text-right mt-3 mb-3">
@@ -129,6 +130,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
+            <img class="mb-4" src="/static/the-dead-sticky-notes-mascot-character-free-vector.png" alt="" width="72" height="72">
             <p>Once you delete all account items, lists and account information will be deleted...</p>
           </div>
           <div class="modal-footer">
