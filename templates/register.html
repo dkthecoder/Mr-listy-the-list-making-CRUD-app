@@ -8,7 +8,7 @@
   <form class="form-signin" method="POST" action="">
     {{ form.hidden_tag() }}
     <Fieldset class="form-group">
-      <img class="mb-4" src="/docs/4.5/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+      <img class="mb-4" src="/static/sticky-notes-cute-mascot-is-eating-a-fried-chicken-free-vector.jpg" alt="" width="72" height="72">
       <legend class="h3 mb-3 font-weight-normal">Please Register</legend>
 
       <div class="form-group">
@@ -73,7 +73,7 @@
     </Fieldset>
 
     <div class="form-group">
-      {{ form.submit(class="btn btn-success") }}
+      {{ form.submit(class="btn btn-success mt-1 mb-1") }}
     </div>
   </form>
 </div>
@@ -82,7 +82,6 @@
   <small class="text-muted">
     Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">Sign in!</a>
   </small>
-  <p class="mt-5 mb-3 text-muted">&copy; 2017-2020</p>
 </div>
 
 

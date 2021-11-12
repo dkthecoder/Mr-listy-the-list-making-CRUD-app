@@ -24,6 +24,12 @@ def index():
     return render_template("index.html")
 
 
+#temp
+@app.route('/layout_login_registration')
+def layout_login_registration():
+    return render_template("layout_login_registration.html")
+
+
 #delete user account
 #FUNCTION
 @app.route('/my_account/delete_account', methods=['POST', 'GET'])
