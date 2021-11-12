@@ -1,0 +1,5 @@
+flask
+mysql
+flask_wtf
+wtforms
+bcrypt

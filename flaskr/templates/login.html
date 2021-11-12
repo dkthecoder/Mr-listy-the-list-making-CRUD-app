@@ -53,6 +53,7 @@
     <div class="form-group">
       {{ form.submit(class="btn btn-outline-info mt-1 mb-1") }}
     </div>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   </form>
 </div>
 
