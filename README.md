@@ -42,7 +42,7 @@ WORK ON CI PIPELINE
 Prior to building the app, a risk assessment was undertaken to identify risks and propose measures to control these risks. These measures could then be implemented in the app. This initial risk assessment is shown below:   
 
 INSERT RISK ASSESSMENT
-![RA](https://github.com/dkthecoder/Mr-listy-the-list-making-CRUD-app/blob/main/figures/risk%20assessment.png)  
+![RA](https://github.com/dkthecoder/Mr-listy-the-list-making-CRUD-app/blob/main/figures/risk%20assessment%20inverted.png)  
 Some of the control measures implemented in the project as a result of the risk assessment are as follows:  
 
 The likelihood and impact level (out of 5) of each risk identified were estimated before and after the implementation of control measures, to quantify the effect of implementing the measures.
