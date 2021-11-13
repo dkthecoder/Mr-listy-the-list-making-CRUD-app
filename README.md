@@ -34,9 +34,11 @@ INSERT ERD DIAGRAM
 
 The goal for future iterations of this project would include additional functionality to mark items as done, archieve lists, share lists amongst other users (almost like a list social network).
 
-WORK ON CI PIPELINE
-## CI Pipeline:  
 
+## CI Pipeline:  
+![KANBAN BACKLOG](https://github.com/dkthecoder/Mr-listy-the-list-making-CRUD-app/blob/main/figures/kanban%20backlog.png?raw=true)
+
+![KANBAN TIMELINE](https://github.com/dkthecoder/Mr-listy-the-list-making-CRUD-app/blob/main/figures/jira%20kanban%20timeline.png?raw=true)
 
 ## Risk Assessment:
 Prior to building the app, a risk assessment was undertaken to identify risks and propose measures to control these risks. These measures could then be implemented in the app. This initial risk assessment is shown below:   
