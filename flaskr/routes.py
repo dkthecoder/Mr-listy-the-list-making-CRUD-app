@@ -3,9 +3,18 @@ from flaskr.forms import RegistrationForm, LoginForm, MyAccountForm, ListForm, N
 from mysql import connector
 from flaskr import app
 import bcrypt
+import os
 
 #load database conector object
-db = connector.connect(host="localhost", user="root", password="root", database="flaskapplist")
+#db = connector.connect(host="localhost", user="root", password="root", database="flaskapplist")
+
+# Get environment variables for db
+HOST = os.getenv('DB_HOST')
+USER = os.getenv('USER')
+PASSWORD = os.getenv('PASSWORD')
+DATABASE = os.getenv('DATABASE')
+db = connector.connect(host=HOST, user=USER, password=PASSWORD, database=DATABASE)
+
 cursor = db.cursor(buffered=True)
 
 

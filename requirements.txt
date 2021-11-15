@@ -1,5 +1,9 @@
 flask
 mysql
+mysql-connector-python
 flask_wtf
 wtforms
 bcrypt
+pytest
+pytest-cov
+selenium
