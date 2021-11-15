@@ -34,9 +34,7 @@ The goal for future iterations of this project would include additional function
 
 
 ## CI Pipeline:  
-![KANBAN BACKLOG](https://github.com/dkthecoder/Mr-listy-the-list-making-CRUD-app/blob/main/figures/kanban%20backlog.png?raw=true)
-
-![KANBAN TIMELINE](https://github.com/dkthecoder/Mr-listy-the-list-making-CRUD-app/blob/main/figures/jira%20kanban%20timeline.png?raw=true)
+![KANBAN](https://github.com/dkthecoder/Mr-listy-the-list-making-CRUD-app/blob/main/figures/jira%20kanban%20backlog%20timeline.png?raw=true)
 
 For deployment and automated testing Jenkins was utilised to itegrate between github, being triggued to develop a build once a new commit has been made. Testing would be automated as part of thebuild process in Jenkins.
 
