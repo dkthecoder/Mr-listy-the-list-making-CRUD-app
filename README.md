@@ -68,6 +68,13 @@ Testing is considered an essential part of the development process. At this poin
 
 As this is not a production app, tests such as security tests and performance tests were not part of the scope of this project; only testing for functionality was performed. Testing was attempted but not completed; there are no coverage or testing reports to show at this time.
 
+In theory my testing plan would have utilised integration testing to assess the functions of the website given normal and edge cases of user input. Some elements to test would include (but not limited too):
+* Normal, regular input.
+* Overloading fields with alpha-numeric values.
+* Using special characters in regular and overloaded input.
+* SQL injection.
+* Non-normal interaction (such as accessing elemnts of the sight through the url routing).
+
 
 ## Known Issues:
 * User authentication needs to be amended to varify the user of the session cannot access other users lists.
@@ -82,3 +89,4 @@ As this is not a production app, tests such as security tests and performance te
 * Password verification for account deletion.
 * Use of environment variables.
 * Password reset via email.
+* Use SQLAlchemy instead of MySQL connector.
